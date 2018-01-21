@@ -2,3 +2,5 @@ requests
 docopt
 prettytable
 lxml
+pygame
+
