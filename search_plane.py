@@ -3,20 +3,25 @@ import requests
 import plane_data
 import re
 import time
+import datetime
 import random
 import json
+from time import sleep
 from read_lxml import ReadHtml
 from read_lxml import random_proxy
 from read_write_ini import read_ini
 
+
 class CheckPlane:
-    def __init__(self, from_station, to_station, search_data):
+    def __init__(self, from_station, to_station, search_data, *kwargs):
         self.url = 'http://flights.ctrip.com/domesticsearch/search/SearchFirstRouteFlights'
         self.search_data = search_data # 查询日期
         self.from_station = from_station # 起始站
         self.to_station = to_station # 到达站
         self.city_info_dict = {}  # 以字典列表的形式存储城市和codes值
         self.plane_info_list = [] # 机票信息列表
+        self.conditions_list = [] # 条件查询后的列表
+        self.timing = kwargs
         def data_pressing():
             data = plane_data.__doc__.split('suggestion=')[1][:-1][7:][:-3]
             data_pro = data.split('{')
@@ -58,7 +63,7 @@ class CheckPlane:
             LogToken = pp[3].split('LogToken=')[1][:32]
             return LogToken, rk, CK, r
 
-        print('开始请求数据')
+        # print('开始请求数据')
         result = ReadHtml(self.main_url,headers=self.headers).read_html()
         if result is False:
             print('数据请求失败，再次请求。。。')
@@ -139,9 +144,39 @@ class CheckPlane:
                 'rt':  i['scs'][0]['rt'], # 打折
             }
             self.plane_info_list.append(flane_city)
-        return self.plane_info_list
+
+    def my_timing(self):
+        """定时任务"""
+        k = 0
+        if self.timing[2]['f'] is False:
+            self.data_analysis()  # 解析数据
+            return self.plane_info_list
+        else:
+            system_data = time.strftime('%Y-%m-%d %H-%M-%S', time.localtime(time.time())) # 当前系统时间
+            d1 = datetime.datetime.strptime(system_data, '%Y-%m-%d %H-%M-%S')
+            current_data = float(d1.minute) + float(self.timing[0])
+            while k == 0:
+                self.data_analysis() # 解析数据
+                for i in self.plane_info_list:
+                    if float(i['p']) <= float(self.timing[1]):
+                        self.conditions_list.append(i)
+                if self.conditions_list:
+                    return self.conditions_list
+                else:
+                    a_data = time.strftime('%Y-%m-%d %H-%M-%S', time.localtime(time.time()))  # 当前系统时间
+                    d2 = datetime.datetime.strptime(a_data, '%Y-%m-%d %H-%M-%S')
+                    d2_data = float(d2.minute)
+                    if d2_data >= current_data:
+                        break
+                    sleep(random.randint(1,5))
+                    print('正在查询价格低于%s元的%s飞往%s的飞机票,定时%s分钟' % (self.timing[1],self.from_station,self.to_station,self.timing[0]))
+
+
+
+
 
 
 if __name__ == '__main__':
-    result = CheckPlane('北京','成都','2018-01-24').data_analysis()
+    data = {'f': False}
+    result = CheckPlane('北京','成都','2018-01-24',0,9,data).my_timing()
     print(result)

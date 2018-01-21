@@ -3,14 +3,18 @@
 """Train plane query via command-line.
 
 Usage:
-    plane <from> <to> <date>
+    plane [-f] <from> <to> <date> <time> <price>
 
 Options:
     -h,--help        显示帮助菜单
+    -f               定时查询,单位为分钟
 
 Example:
-    python plane.py 南京 北京 2016-07-01
-    python plane.py 南京 北京 2016-07-01
+    python plane.py 南京 北京 2016-07-01 0 0
+    python -f plane.py 南京 北京 2016-07-01 30 1000
+    末尾的倒数第二个参数为定时的时间，需要和-f配合使用。
+    最后一个参数为价格阈值,当查询到机票的价格小于或者等于该阈值时窗口会打印该机票信息
+    如果不需要定时 -f 参数不需要写， 但是最后时间和价格阈值的位置必须为0
 """
 from docopt import docopt
 from search_plane import CheckPlane
@@ -22,7 +26,7 @@ def coloring():
        只写一个字段表示前景色,背景色默认
     """
     color_dict = {
-        'RED' : '\033[31m', # 红色
+        'RED': '\033[31m', # 红色
         'GREEN': '\033[32m', # 绿色
         'YELLOW': '\033[33m', # 黄色
         'BLUE': '\033[34m', # 蓝色
@@ -36,11 +40,17 @@ def coloring():
 def cli():
     """命令行接受指令"""
     arguments = docopt(__doc__)
+    train_type = {
+        'f': arguments['-f'], # 是否定时
+    }
     return CheckPlane(
             arguments['<from>'], # 出发站
             arguments['<to>'], # 到达站
             arguments['<date>'], # 起飞日期
-        ).data_analysis()
+            arguments['<time>'], # 定时，单位为分钟
+            arguments['<price>'], # 价格阈值
+            train_type, # 是否定时
+        ).my_timing()
 
 def table_shows():
     """以表格形式展示飞机信息"""

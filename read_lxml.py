@@ -22,14 +22,19 @@ def random_proxy(namefile='ipList.csv'):
         print('当前使用的代理ip为：%s' % http)
         write_ini(content=proxy)
 
+
+# noinspection PyShadowingNames
 class ReadHtml:
+    # noinspection PyShadowingNames
     def __init__(self, url=None, headers=None, my_encode='utf-8'):
         self.url = url
         self.headers = headers
         self.my_encode = my_encode # 编码
 
     def read_html(self):
+        # noinspection PyBroadException
         def result_data():
+            # noinspection PyBroadException
             try:
                 r = requests.get(self.url,
                                  headers=self.headers,
@@ -37,17 +42,19 @@ class ReadHtml:
                                  timeout=4,
                                  )
                 r.encoding = self.my_encode
-                if r.status_code == 200:
+                if '有道' in r.text.split('content="')[1]:
+                    random_proxy('ipList_2.csv')
+                    return False
+                elif r.status_code == 200:
                     tree = etree.HTML(
                         r.text,
                     )
                     return tree
                 else:
-                    random_proxy()
+                    random_proxy('ipList_2.csv')
                     return False
-            except Exception as msgs:
-                print(msgs)
-                random_proxy()
+            except Exception:
+                random_proxy('ipList_2.csv')
                 return False
         result = result_data()
         if result is False:
