@@ -1,4 +1,5 @@
 # search_train
+V1.0.0
 简单的一个命令就可以查询12306的车票
 1、安装python版本为3.4以上(python有两个版本2.x和3.x)
 https://www.python.org/ftp/python/3.6.2/python-3.6.2-amd64.exe
@@ -15,3 +16,10 @@ python tickets.py -h 获取帮助信息
 python proxyIp.py
 
 运行结束后，再次查询车票
+
+V1.1.0
+增加了飞机票查询功能
+使用方法
+cd D:\search_train
+python plane.py 兰州 成都 2018-02-29
+
