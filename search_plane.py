@@ -6,6 +6,7 @@ import time
 import datetime
 import random
 import json
+import pygame
 from time import sleep
 from read_lxml import ReadHtml
 from read_lxml import random_proxy
@@ -15,6 +16,7 @@ from read_write_ini import read_ini
 class CheckPlane:
     def __init__(self, from_station, to_station, search_data, *kwargs):
         self.url = 'http://flights.ctrip.com/domesticsearch/search/SearchFirstRouteFlights'
+        self.mp3_path = 'http://boscdn.bpc.baidu.com/v1/developer/531697ca-2e4e-4998-90dc-16007fd33357.mp3'
         self.search_data = search_data # 查询日期
         self.from_station = from_station # 起始站
         self.to_station = to_station # 到达站
@@ -145,6 +147,15 @@ class CheckPlane:
             }
             self.plane_info_list.append(flane_city)
 
+    def play_mp3(self):
+        """播放音乐"""
+        pygame.mixer.init()
+        print("播放音乐")
+        pygame.mixer.music.load('plane.mp3')
+        pygame.mixer.music.play(loops=1)
+        time.sleep(2)
+        pygame.mixer.music.stop()
+
     def my_timing(self):
         """定时任务"""
         k = 0
@@ -161,6 +172,7 @@ class CheckPlane:
                     if float(i['p']) <= float(self.timing[1]):
                         self.conditions_list.append(i)
                 if self.conditions_list:
+                    self.play_mp3() # 播放音乐
                     return self.conditions_list
                 else:
                     a_data = time.strftime('%Y-%m-%d %H-%M-%S', time.localtime(time.time()))  # 当前系统时间
@@ -178,5 +190,4 @@ class CheckPlane:
 
 if __name__ == '__main__':
     data = {'f': False}
-    result = CheckPlane('北京','成都','2018-01-24',0,9,data).my_timing()
-    print(result)
+    CheckPlane('北京','成都','2018-01-24',0,9,data).play_mp3()
