@@ -20,6 +20,5 @@ python proxyIp.py
 V1.1.0
 增加了飞机票查询功能
 使用方法
-cd D:\search_train
-python plane.py 兰州 成都 2018-02-29
+1、cd D:\search_train   2、python plane.py 兰州 成都 2018-02-29
 
